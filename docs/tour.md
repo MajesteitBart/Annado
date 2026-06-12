@@ -6,9 +6,8 @@ Every screenshot in one place, grouped by what you'd use it for. See the [README
 
 Capture a task in an Obsidian daily note during a meeting, then edit it in Annado — side by side:
 
-[![Watch the overview video](images/overview-poster.png)](overview.mp4)
+https://github.com/user-attachments/assets/343a7135-a676-4ebd-99f5-dae0626fe181
 
-*▶ Click the image to watch.*
 
 ## Views
 
