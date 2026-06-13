@@ -14,6 +14,9 @@ interface MarkdownNotesRendererProps {
   isObsidianVault?: boolean;
 }
 
+// Wikilink/link context shared by every inline markdown render (notes, subtasks, …).
+export type WikilinkProps = Omit<MarkdownNotesRendererProps, 'notes'>;
+
 // Inline token types produced by tokenizeInline()
 type InlineToken =
   | { type: 'text'; content: string }
@@ -80,12 +83,13 @@ function tokenizeInlineProtectingLinks(text: string): InlineToken[] {
 }
 
 // Render inline tokens for a single line, calling WikilinkRenderer for text content.
-function InlineLine({
+// Reused anywhere a single line of markdown needs rendering (notes lines, subtask titles).
+export function InlineMarkdown({
   text,
   wikilinkProps,
 }: {
   text: string;
-  wikilinkProps: Omit<MarkdownNotesRendererProps, 'notes'>;
+  wikilinkProps: WikilinkProps;
 }) {
   const tokens = tokenizeInlineProtectingLinks(text);
   return (
@@ -145,21 +149,21 @@ export function MarkdownNotesRenderer(props: MarkdownNotesRendererProps) {
         if (line.startsWith('### ')) {
           return (
             <div key={i} className="text-[13px] font-semibold text-[#444] dark:text-[#CCC] mt-2 mb-0.5">
-              <InlineLine text={line.slice(4)} wikilinkProps={wikilinkProps} />
+              <InlineMarkdown text={line.slice(4)} wikilinkProps={wikilinkProps} />
             </div>
           );
         }
         if (line.startsWith('## ')) {
           return (
             <div key={i} className="text-[14px] font-semibold text-[#333] dark:text-[#DDD] mt-2.5 mb-0.5">
-              <InlineLine text={line.slice(3)} wikilinkProps={wikilinkProps} />
+              <InlineMarkdown text={line.slice(3)} wikilinkProps={wikilinkProps} />
             </div>
           );
         }
         if (line.startsWith('# ')) {
           return (
             <div key={i} className="text-[15px] font-bold text-[#222] dark:text-[#EEE] mt-3 mb-1">
-              <InlineLine text={line.slice(2)} wikilinkProps={wikilinkProps} />
+              <InlineMarkdown text={line.slice(2)} wikilinkProps={wikilinkProps} />
             </div>
           );
         }
@@ -168,7 +172,7 @@ export function MarkdownNotesRenderer(props: MarkdownNotesRendererProps) {
         if (line.startsWith('> ')) {
           return (
             <div key={i} className="pl-3 border-l-2 border-[#D0D0D0] dark:border-[#555] text-[#888] dark:text-[#888] italic leading-relaxed">
-              <InlineLine text={line.slice(2)} wikilinkProps={wikilinkProps} />
+              <InlineMarkdown text={line.slice(2)} wikilinkProps={wikilinkProps} />
             </div>
           );
         }
@@ -184,7 +188,7 @@ export function MarkdownNotesRenderer(props: MarkdownNotesRendererProps) {
             <div key={i} className="flex items-start gap-2 leading-relaxed">
               <span className="mt-[3px] text-[10px] text-[#888] dark:text-[#666] flex-shrink-0">●</span>
               <span>
-                <InlineLine text={line.slice(2)} wikilinkProps={wikilinkProps} />
+                <InlineMarkdown text={line.slice(2)} wikilinkProps={wikilinkProps} />
               </span>
             </div>
           );
@@ -193,7 +197,7 @@ export function MarkdownNotesRenderer(props: MarkdownNotesRendererProps) {
         // Plain paragraph
         return (
           <div key={i} className="leading-relaxed">
-            <InlineLine text={line} wikilinkProps={wikilinkProps} />
+            <InlineMarkdown text={line} wikilinkProps={wikilinkProps} />
           </div>
         );
       })}

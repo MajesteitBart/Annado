@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ChecklistItem } from '../types/task';
 import { useTaskStore } from '../stores/taskStore';
 import { TaskCheckbox } from './TaskCheckbox';
+import { InlineMarkdown, WikilinkProps } from './MarkdownNotesRenderer';
 
 interface ChecklistItemRowProps {
   item: ChecklistItem;
@@ -15,10 +16,28 @@ export function ChecklistItemRow({ item, index, taskId, size = 'md', disabled = 
   const toggleChecklistItem = useTaskStore((s) => s.toggleChecklistItem);
   const renameChecklistItem = useTaskStore((s) => s.renameChecklistItem);
   const deleteChecklistItem = useTaskStore((s) => s.deleteChecklistItem);
+  const availableProjects = useTaskStore((s) => s.availableProjects);
+  const availablePeople = useTaskStore((s) => s.availablePeople);
+  const projectColors = useTaskStore((s) => s.projectColors);
+  const isObsidianVault = useTaskStore((s) => s.isObsidianVault);
+  const setSelectedProject = useTaskStore((s) => s.setSelectedProject);
+  const setSelectedPerson = useTaskStore((s) => s.setSelectedPerson);
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState('');
 
   const textSize = size === 'sm' ? 'text-[12px]' : 'text-[13px]';
+
+  // Same wikilink/link context the notes renderer uses, so subtask titles render
+  // markdown identically. Pulled from the store here to keep all call sites unchanged.
+  const wikilinkProps: WikilinkProps = useMemo(() => ({
+    personNames: new Set(availablePeople.map((p) => p.name)),
+    projectNames: new Set(availableProjects.map((p) => p.name)),
+    onPersonClick: setSelectedPerson,
+    onProjectClick: setSelectedProject,
+    projectColors,
+    availableProjects,
+    isObsidianVault,
+  }), [availablePeople, availableProjects, projectColors, isObsidianVault, setSelectedPerson, setSelectedProject]);
 
   const startEditing = () => {
     if (disabled) return;
@@ -77,7 +96,7 @@ export function ChecklistItemRow({ item, index, taskId, size = 'md', disabled = 
           }`}
           onClick={startEditing}
         >
-          {item.title}
+          <InlineMarkdown text={item.title} wikilinkProps={wikilinkProps} />
         </span>
       )}
     </div>
