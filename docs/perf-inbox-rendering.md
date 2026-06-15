@@ -137,6 +137,17 @@ keyboard nav (↑/↓, ⌃J/⌃K) scrolls off-screen selections into view; ⌘S/
 selected row; switching views resets cleanly; the "New To-Do" footer in
 project/person views.
 
+## Results (measured locally on a ~3000-task vault)
+
+- PRs 1–3 removed the per-interaction cost: selecting/expanding a task no longer
+  scales with the total row count, and collapsed rows are cheap.
+- PR4 (`content-visibility`) helped but was **not** enough on its own to make
+  scrolling smooth at ~3000 items.
+- PR5 (`@tanstack/react-virtual`) was the **decisive** win — the list scrolls
+  smoothly at ~3000 tasks even in an unoptimized dev build (StrictMode
+  double-render, unminified). PR4 still helps the views PR5 doesn't virtualize
+  (Upcoming, Logbook).
+
 ## How to measure
 
 Use the React DevTools Profiler against a vault of ~3000 tasks: record (a) initial
